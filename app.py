@@ -1,18 +1,23 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import joblib
+import os
 
 app = Flask(__name__)
 
-# Load trained model pipeline
-MODEL_PATH = 'fraud_model.pkl'
-model = None
-try:
-    model = joblib.load(MODEL_PATH)
-except Exception:
-    model = None
+MODEL_PATH = "fraud_model.pkl"
+
+# ---------- AUTO TRAIN MODEL ON SERVER ----------
+if not os.path.exists(MODEL_PATH):
+    print("Model not found. Training model now...")
+    import train_model   # runs train_model.py and creates fraud_model.pkl
+
+# Load trained model
+model = joblib.load(MODEL_PATH)
+print("Model loaded successfully")
 
 
+# ---------- ROUTES ----------
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -25,9 +30,6 @@ def predict():
 
 @app.route('/submit', methods=['POST'])
 def submit():
-    if model is None:
-        return render_template('submit.html', result=None, error='Model not found. Run train_model.py first.')
-
     try:
         data = {
             'step': [float(request.form.get('step', 0))],
@@ -40,42 +42,22 @@ def submit():
         }
 
         X = pd.DataFrame(data)
-        pred_raw = model.predict(X)[0]
-        try:
-            pred = int(pred_raw)
-        except Exception:
-            # fallback: if it's array-like, take first element
-            try:
-                pred = int(pred_raw[0])
-            except Exception:
-                pred = pred_raw
 
-        proba = None
-        try:
-            p = model.predict_proba(X)[0]
-            # convert numpy arrays to plain list for template safety
-            try:
-                proba = [float(x) for x in p]
-            except Exception:
-                proba = p.tolist() if hasattr(p, 'tolist') else p
-        except Exception:
-            proba = None
+        pred = int(model.predict(X)[0])
 
         if pred == 1:
-            label = 'Fraud Transaction'
-            color = 'danger'
+            label = "⚠ Fraudulent Transaction"
+            color = "danger"
         else:
-            label = 'Legitimate Transaction'
-            color = 'success'
+            label = "✔ Legitimate Transaction"
+            color = "success"
 
-        return render_template('submit.html', result=label, color=color, proba=proba)
+        return render_template('submit.html', result=label, color=color)
 
     except Exception as e:
         return render_template('submit.html', result=None, error=str(e))
 
 
-import os
-
+# ---------- MAIN ----------
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
