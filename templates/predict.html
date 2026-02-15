@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Predict - Fraud Detection</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="/">Fraud Detection</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/predict">Predict</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container py-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title">Transaction Details</h2>
+                    <p class="text-muted">Enter payment parameters for fraud analysis</p>
+
+                    <form action="/submit" method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Step</label>
+                                <input name="step" type="number" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Transaction Type</label>
+                                <select name="type" class="form-select" required>
+                                    <option value="PAYMENT">PAYMENT</option>
+                                    <option value="TRANSFER">TRANSFER</option>
+                                    <option value="CASH_OUT">CASH_OUT</option>
+                                    <option value="DEBIT">DEBIT</option>
+                                    <option value="CASH_IN">CASH_IN</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Amount</label>
+                                <input name="amount" type="number" step="any" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Old Balance (Origin)</label>
+                                <input name="oldbalanceOrg" type="number" step="any" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">New Balance (Origin)</label>
+                                <input name="newbalanceOrig" type="number" step="any" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Old Balance (Destination)</label>
+                                <input name="oldbalanceDest" type="number" step="any" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">New Balance (Destination)</label>
+                                <input name="newbalanceDest" type="number" step="any" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <center>
+                            <button type="submit" class="btn btn-primary btn-lg" style="text-align:center;">Analyze Transaction</button>
+                            </center>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
